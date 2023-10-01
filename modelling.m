@@ -3,7 +3,7 @@ clc
 clear all
 close all
 %% change working directory to script directory
-cd(fileparts(mfilename('fullpath')));
+cd(fileparts(matlab.desktop.editor.getActiveFilename));
 %% load parameters files
 params
 %% extract subject choice data
