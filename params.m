@@ -1,0 +1,2 @@
+dataPath = "./Data";
+preprocessedDataPath = './Preprocessed';
