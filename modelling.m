@@ -8,6 +8,7 @@ cd(fileparts(matlab.desktop.editor.getActiveFilename));
 params
 %% 
 subjects = dir(strcat(preprocessedDataPath, '/Sub*'));
+fittedParamsStruct = struct;
 for subjectNum = 1:numel(subjects)
     subject = subjects(subjectNum).name;
     % load preprocessed data
@@ -32,7 +33,7 @@ for subjectNum = 1:numel(subjects)
     pub = [1 0.9 0.8 0.6 1 0.9 0.8 0.6];        % Plausible upper bounds
 
     params_fit = bads(objective, x0, lb, ub, plb, pub);
+    fittedParamsStruct.(subject) = params_fit;
 end
 
-% ^ first thing to do is acquire all the data in a simple csv.
-% trial number, questionresult, temporallevel, spatiallevel.
+% Next time, try to play with plb and pub. Also, the objective function.
