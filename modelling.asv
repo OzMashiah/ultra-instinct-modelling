@@ -21,8 +21,12 @@ for subjectNum = 1:numel(subjects)
     % Define model
     multiplicative = @(params, x) params(x(1)) * params(x(2));
 
+    % index func
+    t_index = @(alteration) find(abs([0, 0.05, 0.072, 0.094] - abs(alteration)) < eps);
+    s_index = @(alteration) find(abs([0, 0.1583, 0.2125, 0.2679] - abs(alteration)) < eps) + 4;
+
     %  Define the objective function
-    objective = @(params) sum((multiplicative(params, [tParamVal, sParamVal]) - results).^2);
+    objective = @(params) sum((multiplicative(params, [t_index(temporal), s_index(spatial)]) - results).^2);
 
     % t1, t2, t3, t4, s1, s2, s3, s4
     x0 = [0 0 0 0 0 0 0 0];                     % Starting point
