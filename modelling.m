@@ -47,6 +47,8 @@ for subjectNum = 1:numel(subjects)
 
     params_fit = bads(penalized_objective, x0, lb, ub, plb, pub);
     fittedParamsStruct.(subject) = params_fit;
+
+    save('multiplicative_pred.mat', '-struct', 'fittedParamsStruct');
 end
 
 % Next time, try to play with plb and pub. Also, the objective function.
