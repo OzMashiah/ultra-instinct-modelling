@@ -8,7 +8,8 @@ cd(fileparts(matlab.desktop.editor.getActiveFilename));
 params
 %% 
 subjects = dir(strcat(preprocessedDataPath, '/Sub*'));
-fittedParamsStruct = struct;
+mulConstStruct = struct;
+mulStruct = struct;
 for subjectNum = 1:numel(subjects)
     subject = subjects(subjectNum).name;
     % load preprocessed data
@@ -42,13 +43,20 @@ for subjectNum = 1:numel(subjects)
     x0 = [0 0 0 0 0 0 0 0];                     % Starting point
     lb = [0 0 0 0 0 0 0 0];                     % Lower bounds
     ub = [1 1 1 1 1 1 1 1];                     % Upper bounds
-    plb = [0.7 0.55 0.4 0.2 0.7 0.55 0.4 0.2];    % Plausible lower bounds
-    pub = [1 0.8 0.65 0.5 1 0.8 0.65 0.5];        % Plausible upper bounds
+    %plb = [0.7 0.55 0.4 0.2 0.7 0.55 0.4 0.2];    % Plausible lower bounds
+    %pub = [1 0.8 0.65 0.5 1 0.8 0.65 0.5];        % Plausible upper bounds
+    
+    % multiplicative model
+    mul_fit = bads(objective, x0, lb, ub);
+    mulStruct.(subject) = mul_fit;
+    save(strcat(predictionsOutputPath, '/', 'mul_pred.mat'), ...
+        '-struct', 'mulStruct')
 
-    params_fit = bads(penalized_objective, x0, lb, ub, plb, pub);
-    fittedParamsStruct.(subject) = params_fit;
-
-    save('multiplicative_pred.mat', '-struct', 'fittedParamsStruct');
-end
+    % multiplicative with constraint model
+    mulConst_fit = bads(penalized_objective, x0, lb, ub);
+    mulConstStruct.(subject) = mulConst_fit;
+    save(strcat(predictionsOutputPath, '/', 'mulConst_pred.mat'), ...
+        '-struct', 'mulConstStruct');
+    end
 
 % Next time, try to play with plb and pub. Also, the objective function.
