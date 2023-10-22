@@ -24,8 +24,9 @@ for subjectNum = 1:numel(subjects)
     multiplicative = @(params, x) params(x(1)) * params(x(2));
 
     %  Define the objective function
-    objective = @(params) sum((multiplicative(params, ...
-        [tParamVal, sParamVal]) - results).^2);
+    objective = @(params) -mean((results .* log(multiplicative(params, [tParamVal, sParamVal]) + 1e-100)) + ((1 - results) .* log(1 - multiplicative(params, [tParamVal, sParamVal]) + 1e-100))); % log loss
+    %objective = @(params) sum((multiplicative(params, ...
+        %[tParamVal, sParamVal]) - results).^2);
 
     % Define the constraint function
     % The constraint enforces the following order:
@@ -40,22 +41,24 @@ for subjectNum = 1:numel(subjects)
         sum(min(0, constraint(params)).^2);
 
     % t1, t2, t3, t4, s1, s2, s3, s4
-    x0 = [0 0 0 0 0 0 0 0];                     % Starting point
-    lb = [0 0 0 0 0 0 0 0];                     % Lower bounds
-    ub = [1 1 1 1 1 1 1 1];                     % Upper bounds
+    x0 = [0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5]; 
+    x1 = [0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5];        % Starting point
+    lb = [0 0 0 0 0 0 0 0];                        % Lower bounds
+    ub = [1 1 1 1 1 1 1 1];                        % Upper bounds
     %plb = [0.7 0.55 0.4 0.2 0.7 0.55 0.4 0.2];    % Plausible lower bounds
     %pub = [1 0.8 0.65 0.5 1 0.8 0.65 0.5];        % Plausible upper bounds
     
     % multiplicative model
-    mul_fit = bads(objective, x0, lb, ub);
-    mulStruct.(subject) = mul_fit;
-    save('mul_pred.mat', '-struct', 'mulStruct')
+    [mul_fit, mul_fval] = bads(objective, x0, lb, ub);
+    mulStruct.(subject) = [mul_fit, mul_fval];
+    save(strcat(predictionsOutputPath, '/', 'mul_pred.mat'), ...
+        '-struct', 'mulStruct')
 
     % multiplicative with constraint model
-    mulConst_fit = bads(penalized_objective, x0, lb, ub);
-    mulConstStruct.(subject) = mulConst_fit;
-    save(strcat(predictionsOutputPath, '/', 'mulConst_pred.mat',
-    '-struct', 'mulConstStruct');
-   end
+    [mulConst_fit, mulConst_fval] = bads(penalized_objective, x1, lb, ub);
+    mulConstStruct.(subject) = [mulConst_fit, mulConst_fval];
+    save(strcat(predictionsOutputPath, '/', 'mulConst_pred.mat'), ...
+        '-struct', 'mulConstStruct');
+    end
 
 % Next time, try to play with plb and pub. Also, the objective function.
