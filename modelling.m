@@ -24,7 +24,10 @@ for subjectNum = 1:numel(subjects)
     multiplicative = @(params, x) params(x(1)) * params(x(2));
 
     %  Define the objective function
-    objective = @(params) -mean((results .* log(multiplicative(params, [tParamVal, sParamVal]) + 1e-100)) + ((1 - results) .* log(1 - multiplicative(params, [tParamVal, sParamVal]) + 1e-100))); % log loss
+    % Negative Log Likelihood
+    objective = @(params) -mean((results .* log(multiplicative(params, ...
+        [tParamVal, sParamVal]) + 1e-10)) + ((1 - results) .* ...
+        log(1 - multiplicative(params, [tParamVal, sParamVal]) + 1e-10))); 
     %objective = @(params) sum((multiplicative(params, ...
         %[tParamVal, sParamVal]) - results).^2);
 
