@@ -8,8 +8,11 @@ cd(fileparts(matlab.desktop.editor.getActiveFilename));
 params
 %% 
 subjects = dir(strcat(preprocessedDataPath, '/Sub*'));
-mulConstStruct = struct;
 mulStruct = struct;
+mulConstStruct = struct;
+minStruct = struct;
+minConstStruct = struct;
+
 for subjectNum = 1:numel(subjects)
     subject = subjects(subjectNum).name;
     % load preprocessed data
@@ -22,12 +25,16 @@ for subjectNum = 1:numel(subjects)
 
     % Define model
     multiplicative = @(params, x) params(x(1)) * params(x(2));
+    minimalism = @(params, x) min(params(x(1)), params(x(2)));
 
     %  Define the objective function
     % Negative Log Likelihood
-    objective = @(params) -mean((results .* log(multiplicative(params, ...
+    objective_mul = @(params) -mean((results .* log(multiplicative(params, ...
         [tParamVal, sParamVal]) + 1e-10)) + ((1 - results) .* ...
-        log(1 - multiplicative(params, [tParamVal, sParamVal]) + 1e-10))); 
+        log(1 - multiplicative(params, [tParamVal, sParamVal]) + 1e-10)));
+    objective_min = @(params) -mean((results .* log(minimalism(params, ...
+        [tParamVal, sParamVal]) + 1e-10)) + ((1 - results) .* ...
+        log(1 - minimalism(params, [tParamVal, sParamVal]) + 1e-10)));
     %objective = @(params) sum((multiplicative(params, ...
         %[tParamVal, sParamVal]) - results).^2);
 
@@ -40,7 +47,9 @@ for subjectNum = 1:numel(subjects)
         params(6) - params(7), params(7) - params(8)];
 
     % Combine the objective function and the constraint using a penalty method
-    penalized_objective = @(params) objective(params) + ...
+    penalized_objective_mul = @(params) objective_mul(params) + ...
+        sum(min(0, constraint(params)).^2);
+    penalized_objective_min = @(params) objective_min(params) + ...
         sum(min(0, constraint(params)).^2);
 
     % t1, t2, t3, t4, s1, s2, s3, s4 
@@ -51,16 +60,28 @@ for subjectNum = 1:numel(subjects)
     %pub = [1 0.8 0.65 0.5 1 0.8 0.65 0.5];        % Plausible upper bounds
     
     % multiplicative model
-    [mul_fit, mul_fval] = bads(objective, x0, lb, ub);
+    [mul_fit, mul_fval] = bads(objective_mul, x0, lb, ub);
     mulStruct.(subject) = [mul_fit, mul_fval];
     save(strcat(predictionsOutputPath, '/', 'mul_pred.mat'), ...
         '-struct', 'mulStruct')
 
     % multiplicative with constraint model
-    [mulConst_fit, mulConst_fval] = bads(penalized_objective, x0, lb, ub);
+    [mulConst_fit, mulConst_fval] = bads(penalized_objective_mul, x0, lb, ub);
     mulConstStruct.(subject) = [mulConst_fit, mulConst_fval];
     save(strcat(predictionsOutputPath, '/', 'mulConst_pred.mat'), ...
         '-struct', 'mulConstStruct');
+
+    % minimalism model
+    [min_fit, min_fval] = bads(objective_min, x0, lb, ub);
+    minStruct.(subject) = [min_fit, min_fval];
+    save(strcat(predictionsOutputPath, '/', 'min_pred.mat'), ...
+        '-struct', 'minStruct')
+
+    % minimalism with constraint model
+    [minConst_fit, minConst_fval] = bads(penalized_objective_min, x0, lb, ub);
+    minConstStruct.(subject) = [minConst_fit, minConst_fval];
+    save(strcat(predictionsOutputPath, '/', 'minConst_pred.mat'), ...
+        '-struct', 'minConstStruct');
 end
 
 % Next time, try to play with plb and pub. Also, the objective function.
