@@ -67,7 +67,7 @@ for subjectNum = 1:numel(subjects)
 
     % null model
     [null_fit, null_fval] = bads(objective_null, x0, lb, ub);
-    nullStruct.(subject) = [null_fit, null_fval];
+    nullStruct.(subject) = [mean(results), null_fval];
 
     % multiplicative model
     [mul_fit, mul_fval] = bads(objective_mul, x0, lb, ub);
