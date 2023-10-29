@@ -27,8 +27,8 @@ for subjectNum = 1:numel(subjects)
 
     % Define model
     null = @(params, x) mean(results);
-    multiplicative = @(params, x) params(x(1)) * params(x(2));
-    minimalism = @(params, x) min(params(x(1)), params(x(2)));
+    multiplicative = @(params, x) (params(x(:,1)) .* params(x(:,2)))';
+    minimalism = @(params, x) (min(params(x(:,1)), params(x(:,2))))';
 
     %  Define the objective function
     % Negative Log Likelihood
