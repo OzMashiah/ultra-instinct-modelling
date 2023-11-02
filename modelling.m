@@ -44,12 +44,17 @@ for subjectNum = 1:numel(subjects)
 
     % Define the constraint function
     % The constraint enforces the following order:
-    % params(1) > params(2) > params(3) > params(4)
-    % params(5) > params(6) > params(7) > params(8)
+    % params(1) >= params(2) >= params(3) >= params(4)
+    % params(5) >= params(6) >= params(7) >= params(8)
     constraint = @(params) [params(1) - params(2), params(2) - params(3), ...
         params(3) - params(4), params(5) - params(6), ...
         params(6) - params(7), params(7) - params(8)];
-
+    % non-bound constraint for BADS NONBCON arguement
+    nonbcon = @(params) (params(:, 1) < params(:, 2)) & ...
+        (params(:, 2) < params(:, 3)) & (params(:, 3) < params(:, 4)) & ...
+        (params(:, 5) < params(:, 6)) & (params(:, 6) < params(:, 7)) & ...
+        (params(:, 7) < params(:, 8));
+    
     % Combine the objective function and the constraint using a penalty method
     penalized_objective_mul = @(params) objective_mul(params) + ...
         sum(min(0, constraint(params)).^2);
