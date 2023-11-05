@@ -23,7 +23,6 @@ sOnlyConstStruct = struct; % spatial-only model with a constraint.
 
 for subjectNum = 1:numel(subjects)
     subject = subjects(subjectNum).name;
-    disp(subject);
     % load preprocessed data
     data = readtable(strcat(preprocessedDataPath, '/', subject, ...
         '/preprocessedPart3.csv'));
