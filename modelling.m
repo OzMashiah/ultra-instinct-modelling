@@ -84,8 +84,8 @@ for subjectNum = 1:numel(subjects)
     ub_8 = [1 1 1 1 1 1 1 1];                      % Upper bounds
     x0_8 = [0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5];      % Starting point #1
     x1_8 = [0.8 0.6 0.4 0.2 0.8 0.6 0.4 0.2];      % Starting point #2
-    x2_8 = lb_8 + rand(1, numel(lb_8)) .* (ub_8 - lb_8); % Starting point #3
-    x3_8 = lb_8 + rand(1, numel(lb_8)) .* (ub_8 - lb_8); % Starting point #4
+    x2_8 = [1 1 1 1 1 1 1 1];                      % Starting point #3
+    x3_8 = [0 0 0 0 0 0 0 0];                      % Starting point #4
 
     % t1/s1, t2/s2, t3/s3, t4/s4 
     % This is the setup for models that fit 4 parameters.
@@ -93,8 +93,8 @@ for subjectNum = 1:numel(subjects)
     ub_4 = [1 1 1 1];                              % Upper bounds
     x0_4 = [0.5 0.5 0.5 0.5];                      % Starting point #1
     x1_4 = [0.8 0.6 0.4 0.2];                      % Starting point #2
-    x2_4 = lb_4 + rand(1, numel(lb_4)) .* (ub_4 - lb_4); % Starting point #3
-    x3_4 = lb_4 + rand(1, numel(lb_4)) .* (ub_4 - lb_4); % Starting point #4
+    x2_4 = [1 1 1 1];                              % Starting point #3
+    x3_4 = [0 0 0 0];                              % Starting point #4
 
     % function to find the lowest value out of 4 numbers
     
