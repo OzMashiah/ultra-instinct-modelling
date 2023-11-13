@@ -251,6 +251,72 @@ save(strcat(predictionsOutputPath, '/', 'sOnly_pred.mat'), ...
 save(strcat(predictionsOutputPath, '/', 'sOnlyConst_pred.mat'), ...
         '-struct', 'sOnlyConstStruct');
 
+%% Weighted Product Model
+subjects = dir(strcat(preprocessedDataPath, '/Sub*'));
+weightStruct = struct; % weighted product model.
+weightConstStruct = struct; % weighted product model with a constraint.
+
+for subjectNum = 1:numel(subjects)
+    subject = subjects(subjectNum).name;
+    % load preprocessed data
+    data = readtable(strcat(preprocessedDataPath, '/', subject, ...
+        '/preprocessedPart3.csv'));
+    % extract dataset columns to variables
+    tParamVal = data.tParamVal;
+    sParamVal = data.sParamVal;
+    results = data.QuestionResult;
+
+    % define model
+    weightedProduct = @(params, x) (params(9).*(params(x(:,1))) .* ...
+        (params(10) .* params(x(:,2))))';
+    % define objective function
+    objective_weight = @(params) -sum((results .* log(weightedProduct(params, ...
+            [tParamVal, sParamVal]) + 1e-10)) + ((1 - results) .* ...
+            log(1 - weightedProduct(params, [tParamVal, sParamVal]) + 1e-10)));
+    % non-bound constraint the same as mentioned above
+    nonbcon_8 = @(params) (params(:, 1) < params(:, 2)) | ...
+            (params(:, 2) < params(:, 3)) | (params(:, 3) < params(:, 4)) | ...
+            (params(:, 5) < params(:, 6)) | (params(:, 6) < params(:, 7)) | ...
+            (params(:, 7) < params(:, 8));
+
+    % BADS init variables
+    % t1, t2, t3, t4, s1, s2, s3, s4, wTemporal, wSpatial 
+    lb_10 = [0 0 0 0 0 0 0 0 0 0];                      % Lower bounds
+    ub_10 = [1 1 1 1 1 1 1 1 1 1];                      % Upper bounds
+    x0_10 = [0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5];  % Starting point #1 
+    x1_10 = [0.8 0.6 0.4 0.2 0.8 0.6 0.4 0.2 0.9 0.9];  % Starting point #2
+    x2_10 = [1 1 1 1 1 1 1 1 1 1];                      % Starting point #3
+    x3_10 = [0 0 0 0 0 0 0 0 0 0];                      % Starting point #4
+
+    % weighted product model for each starting point
+    [weight_fit_0, weight_fval_0] = bads(objective_weight, x0_10, lb_10, ub_10);
+    [weight_fit_1, weight_fval_1] = bads(objective_weight, x1_10, lb_10, ub_10);
+    [weight_fit_2, weight_fval_2] = bads(objective_weight, x2_10, lb_10, ub_10);
+    [weight_fit_3, weight_fval_3] = bads(objective_weight, x3_10, lb_10, ub_10);
+    est_fit_fval = lowestFVAL([weight_fit_0, weight_fval_0], ...
+        [weight_fit_1, weight_fval_1], [weight_fit_2, weight_fval_2], ...
+        [weight_fit_3, weight_fval_3]);
+    weightStruct.(subject) = best_fit_fval;
+
+    % weighted product with constraint model for each starting point
+    [weightConst_fit_0, weightConst_fval_0] = bads(objective_weight, x0_10, ...
+        lb_10, ub_10, [], [], nonbcon_8);
+    [weightConst_fit_1, weightConst_fval_1] = bads(objective_weight, x1_10, ...
+        lb_10, ub_10, [], [], nonbcon_8);
+    [weightConst_fit_2, weightConst_fval_2] = bads(objective_weight, x2_10, ...
+        lb_10, ub_10, [], [], nonbcon_8);
+    [weightConst_fit_3, weightConst_fval_3] = bads(objective_weight, x3_10, ...
+        lb_10, ub_10, [], [], nonbcon_8);
+    best_fit_fval = lowestFVAL([weightConst_fit_0, weightConst_fval_0], ...
+        [weightConst_fit_1, weightConst_fval_1], ...
+        [weightConst_fit_2, weightConst_fval_2], ...
+        [weightConst_fit_3, weightConst_fval_3]);
+    weightConstStruct.(subject) = best_fit_fval;
+end
+save(strcat(predictionsOutputPath, '/', 'weight_pred.mat'), ...
+        '-struct', 'weightStruct')
+save(strcat(predictionsOutputPath, '/', 'weightConst_pred.mat'), ...
+        '-struct', 'weightConstStruct');
 %% functions
 
 function bestScore = lowestFVAL(arr1, arr2, arr3, arr4)
