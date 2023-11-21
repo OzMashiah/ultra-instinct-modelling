@@ -95,8 +95,6 @@ for subjectNum = 1:numel(subjects)
     x1_4 = [0.8 0.6 0.4 0.2];                      % Starting point #2
     x2_4 = [1 1 1 1];                              % Starting point #3
     x3_4 = [0 0 0 0];                              % Starting point #4
-
-    % function to find the lowest value out of 4 numbers
     
     % null model
     [null_fit, null_fval] = bads(objective_null, x0_8, lb_8, ub_8);
@@ -187,7 +185,7 @@ for subjectNum = 1:numel(subjects)
         [tOnly_fit_3, tOnly_fval_3]);
     tOnlyStruct.(subject) = best_fit_fval;
 
-    % temporal-only with constraint model
+    % temporal-only with constraint model for each starting point
     [tOnlyConst_fit_0, tOnlyConst_fval_0] = bads(objective_t_only, x0_4, lb_4, ...
         ub_4, [], [], nonbcon_4);
     [tOnlyConst_fit_1, tOnlyConst_fval_1] = bads(objective_t_only, x1_4, lb_4, ...
@@ -202,7 +200,7 @@ for subjectNum = 1:numel(subjects)
         [tOnlyConst_fit_3, tOnlyConst_fval_3]);
     tOnlyConstStruct.(subject) = best_fit_fval;
     
-    % spatial-only model
+    % spatial-only model for each starting point
     [sOnly_fit_0, sOnly_fval_0] = bads(objective_s_only, x0_4, lb_4, ub_4);
     [sOnly_fit_1, sOnly_fval_1] = bads(objective_s_only, x1_4, lb_4, ub_4);
     [sOnly_fit_2, sOnly_fval_2] = bads(objective_s_only, x2_4, lb_4, ub_4);
@@ -212,7 +210,7 @@ for subjectNum = 1:numel(subjects)
         [sOnly_fit_3, sOnly_fval_3]);
     sOnlyStruct.(subject) = best_fit_fval;
     
-    % spatial-only with constraint model
+    % spatial-only with constraint model for each starting point
     [sOnlyConst_fit_0, sOnlyConst_fval_0] = bads(objective_s_only, x0_4, lb_4, ...
         ub_4, [], [], nonbcon_4);
     [sOnlyConst_fit_1, sOnlyConst_fval_1] = bads(objective_s_only, x1_4, lb_4, ...
@@ -251,7 +249,7 @@ save(strcat(predictionsOutputPath, '/', 'sOnly_pred.mat'), ...
 save(strcat(predictionsOutputPath, '/', 'sOnlyConst_pred.mat'), ...
         '-struct', 'sOnlyConstStruct');
 
-%% Weighted Product Model
+%% Weighted Product Model Attemp
 subjects = dir(strcat(preprocessedDataPath, '/Sub*'));
 weightStruct = struct; % weighted product model.
 weightConstStruct = struct; % weighted product model with a constraint.
