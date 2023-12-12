@@ -17,11 +17,11 @@ Parameter file of paths to be used by the preprocess.m and modelling.m scripts. 
 This script takes the raw data from "dataPath", preprocess it, and output the preprocessed data to "preprocessedDataPath". Running this file is necessary before continuating to the modelling.m script. This script is using the params.m parameter file.
 
 ### modelling.m
-This script takes the preprocessed data from "preprocessedDataPath", defines the wanted models and fit the models parameters for each subjects. The output of the models parameters and negative log-likelihood is stored to "predictionsOutputPath". This script is using the params.m parameter file.
+This script takes the preprocessed data from "preprocessedDataPath", defines the wanted models and fit the models parameters for each subject. The output of the models parameters and negative log-likelihood scores is stored to "predictionsOutputPath". This script is using the params.m parameter file.
 
 ## Instructions
 When running for the first time:
-1) Create the data folder and put the raw data with the same convention it was saved in the Lab drive where each subject has a folder.
+1) Create the data folder and put the raw data with the same convention it was saved in the lab's google drive where each subject has a folder.
 2) Go over the params.m parameter file and make sure the values are as wanted.
 3) Run preprocess.m to preprocess the raw data.
 4) Run modelling.m.
