@@ -23,5 +23,6 @@ When running for the first time:
 3) Run preprocess.m to preprocess the raw data.
 4) Run modelling.m.
 
-[^*] The process of fitting ~10 models to ~16 subjects can take a few hours on a regular laptop. :+1:
+> [!NOTE]
+> The process of fitting ~10 models to ~16 subjects can take a few hours on a regular laptop. :+1:
 
